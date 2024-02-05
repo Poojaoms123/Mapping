@@ -7,10 +7,12 @@ import com.example.company.Repository.CompanyRepository;
 import com.example.company.Repository.EmployeeRepository;
 import com.example.company.Service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.MimeMessage;
 import java.util.List;
 import java.util.Random;
 
@@ -22,6 +24,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private CompanyRepository companyRepository;
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    private Otpservice otpservice;
 
     @Override
     public Object saveOrUpdateEmployee(SaveEmployeeRequest saveEmployeeRequest, Long companyId) throws Exception {
@@ -63,7 +67,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             String employeeCode = this.generateEmployeeCode(company.getCompanyName());
             employee.setEmployeeCode(employeeCode);
             employeeRepository.save(employee);
-            this.sendEmail("suryawanshipooja.sp@gmail.com", "Application", "Hi gitanjali");
+            int otp = otpservice.generateOtp(saveEmployeeRequest.getEmployeeEmail());
+            int serverOtp = otpservice.getOtp(saveEmployeeRequest.getEmployeeEmail());
+            otpservice.clearOTP(saveEmployeeRequest.getEmployeeEmail());
+            this.sendEmail("suryawanshipooja.sp@gmail.com", "Application", "Hi pooja your otp is " + otp);
 
             return "save sucessfully";
 
@@ -85,6 +92,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         javaMailSender.send(mailMessage);
 
     }
+
+
 
 
     @Override
