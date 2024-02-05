@@ -7,9 +7,12 @@ import com.example.company.Repository.CompanyRepository;
 import com.example.company.Repository.EmployeeRepository;
 import com.example.company.Service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -17,9 +20,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     EmployeeRepository employeeRepository;
     @Autowired
     private CompanyRepository companyRepository;
+    @Autowired
+    private JavaMailSender javaMailSender;
+
     @Override
     public Object saveOrUpdateEmployee(SaveEmployeeRequest saveEmployeeRequest, Long companyId) throws Exception {
-        if (employeeRepository.existsById(saveEmployeeRequest.getEmployeeId())){
+        if (employeeRepository.existsById(saveEmployeeRequest.getEmployeeId())) {
             Employee employee = employeeRepository.findById(saveEmployeeRequest.getEmployeeId()).get();
             employee.setEmployeeName(saveEmployeeRequest.getEmployeeName());
             employee.setEmployeeEmail(saveEmployeeRequest.getEmployeeEmail());
@@ -29,17 +35,17 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setEmployeeIsDeleted(false);
             employee.setEmployeeIsActive(true);
             Company company;
-            if(companyRepository.existsByCompanyIdAndCompanyIsDeleted(companyId,false)){
-                 company=companyRepository.findByCompanyIdAndCompanyIsDeleted(companyId,false);
+            if (companyRepository.existsByCompanyIdAndCompanyIsDeleted(companyId, false)) {
+                company = companyRepository.findByCompanyIdAndCompanyIsDeleted(companyId, false);
                 employee.setCompany(company);
-            }else{
+            } else {
                 throw new Exception("company not found");
             }
             String employeeCode = this.generateEmployeeCode(company.getCompanyName());
             employee.setEmployeeCode(employeeCode);
             employeeRepository.save(employee);
             return "updated sucessfully";
-        }else {
+        } else {
             Employee employee = new Employee();
             employee.setEmployeeName(saveEmployeeRequest.getEmployeeName());
             employee.setEmployeeEmail(saveEmployeeRequest.getEmployeeEmail());
@@ -48,29 +54,43 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setEmployeeIsDeleted(false);
             employee.setEmployeeIsActive(true);
             Company company;
-            if(companyRepository.existsByCompanyIdAndCompanyIsDeleted(companyId,false)){
-                 company=companyRepository.findByCompanyIdAndCompanyIsDeleted(companyId,false);
+            if (companyRepository.existsByCompanyIdAndCompanyIsDeleted(companyId, false)) {
+                company = companyRepository.findByCompanyIdAndCompanyIsDeleted(companyId, false);
                 employee.setCompany(company);
-            }else{
+            } else {
                 throw new Exception("company not found");
             }
             String employeeCode = this.generateEmployeeCode(company.getCompanyName());
             employee.setEmployeeCode(employeeCode);
             employeeRepository.save(employee);
+            this.sendEmail("suryawanshipooja.sp@gmail.com", "Application", "Hi gitanjali");
+
             return "save sucessfully";
+
         }
     }
 
-    public String generateEmployeeCode(String companyName){
-       String employeeCode=companyName.replaceAll(" ","").substring(0,3)+"00";
-       return employeeCode;
+
+    public String generateEmployeeCode(String companyName) {
+        String employeeCode = companyName.replaceAll(" ", "").substring(0, 3) + "00";
+        return employeeCode;
 
     }
 
+    public void sendEmail(String toEmail, String subject, String body) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(toEmail);
+        mailMessage.setSubject(subject);
+        mailMessage.setText(body);
+        javaMailSender.send(mailMessage);
+
+    }
+
+
     @Override
-    public Object getEmployeeById(Long employeeId) throws Exception {
-        if (employeeRepository.existsById(employeeId)){
-            Employee employee = employeeRepository.findById(employeeId).get();
+    public Object getEmployeeById(Long emploeeId) throws Exception {
+        if (employeeRepository.existsById(emploeeId)){
+           Employee employee = employeeRepository.findById(emploeeId).get();
             return employee;
         }else {
             throw new Exception("employee not found");

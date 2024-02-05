@@ -6,6 +6,8 @@ import com.example.company.Model.SaveRequest.SaveCompanyRequest;
 import com.example.company.Model.SaveRequest.SaveEmployeeRequest;
 import com.example.company.Service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,42 @@ public class CompanyController {
             return new ResponseEntity<>(new EntityResponse(e.getMessage(), -1), HttpStatus.OK);
         }
     }
+    @GetMapping("/getEmployeeByCompanyId")
+    public ResponseEntity<?> getEmployeeByCompanyId(@RequestParam Long companyId,
+                                                    @RequestParam (defaultValue = "0",required = false)Integer pageNo,
+                                                    @RequestParam(defaultValue = "30",required = false)Integer pageSize,
+                                                    @RequestParam(required = false)String employeeName,
+                                                    @RequestParam(required = false)String employeeEmail,
+                                                    @RequestParam(required = false)String employeeDesignation,
+                                                    @RequestParam(required = false)String employeeMobileNo,
+                                                    @RequestParam(required = false)String employyeeCode){
+        try {
+            Pageable pageable = PageRequest.of(pageNo,pageSize);
+            return new ResponseEntity<>(new EntityResponse(companyService.getEmployeeByCompanyId(companyId,employeeName,employeeEmail,employeeDesignation,employeeMobileNo,employyeeCode,pageable),0),HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(new EntityResponse(e.getMessage(),-1),HttpStatus.OK);
+        }
+
+    }
+    @RequestMapping(value = "/getAllCompanyEmployee",method = RequestMethod.GET)
+    private ResponseEntity<?>getAllCompanyEmployee(@RequestParam(defaultValue = "0",required = false)Integer pageNo,
+                                                   @RequestParam(defaultValue = "30",required = false)Integer pageSize,
+                                                   @RequestParam(required = false)String companyName,
+                                                   @RequestParam(required = false)String employeeName,
+                                                   @RequestParam(required = false)String employeeEmail,
+                                                   @RequestParam(required = false)String employeeDesignation,
+                                                   @RequestParam(required = false)String employeeMobileNo,
+                                                   @RequestParam(required = false)String employeeCode,
+                                                   @RequestParam(required = false)String companyField){
+        try {
+            Pageable pageable = PageRequest.of(pageNo,pageSize);
+            return new ResponseEntity<>(new EntityResponse(companyService.getAllCompanyEmployee(companyName,employeeName,employeeEmail,employeeDesignation,employeeMobileNo,employeeCode,companyField,pageable),0),HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(new EntityResponse(e.getMessage(),-1),HttpStatus.OK);
+        }
+    }
+
+
     @RequestMapping(value = "/getAllCompany",method = RequestMethod.GET)
     private ResponseEntity<?>getAllCompany(){
         try {
