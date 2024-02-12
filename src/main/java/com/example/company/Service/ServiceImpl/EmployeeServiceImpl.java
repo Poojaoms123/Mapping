@@ -194,7 +194,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<Employee> getAllEmployee() {
-        List<Employee> employees= employeeRepository.getAllEmployee();
+        List<Employee> employees = employeeRepository.getAllEmployee();
         return  employees;
     }
 
