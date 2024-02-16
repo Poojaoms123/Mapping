@@ -26,6 +26,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 @Service
@@ -82,9 +83,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             String employeeCode = this.generateEmployeeCode(company.getCompanyName());
             employee.setEmployeeCode(employeeCode);
             employeeRepository.save(employee);
+
             int otp = otpservice.generateOtp(saveEmployeeRequest.getEmployeeEmail());
             int serverOtp = otpservice.getOtp(saveEmployeeRequest.getEmployeeEmail());
             otpservice.clearOTP(saveEmployeeRequest.getEmployeeEmail());
+
+
             String htmlConent = "<html><body><h1>Hi This Is Html Template</h1></body></html>";
             Context context=new Context();
             context.setVariable("name",employee.getEmployeeName());
